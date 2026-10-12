@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Alumnos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      padding-top: 40px;
+      margin: 0;
+    }
+    .container {
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 450px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+      font-size: 18px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      text-align: left;
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f8f9fa;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Registrar Alumno</h2>
+    <div class="form-group">
+      <input type="text" id="nombre" placeholder="Nombre completo">
+      <input type="text" id="curso" placeholder="Curso (ej: 5° A)">
+      <input type="email" id="email" placeholder="Correo (Gmail)">
+      <button onclick="guardar()">Guardar Alumno</button>
+    </div>
+    <h2>Alumnos Registrados</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Curso</th>
+          <th>Email</th>
+        </tr>
+      </thead>
+      <tbody id="lista"></tbody>
+    </table>
+  </div>
+  <script>
+    async function cargar() {
+      const res = await fetch('/alumnos');
+      const datos = await res.json();
+      const lista = document.getElementById('lista');
+      lista.innerHTML = datos.map(a => `
+        <tr>
+          <td>${a.id}</td>
+          <td>${a.nombre}</td>
+          <td>${a.curso}</td>
+          <td>${a.email}</td>
+        </tr>
+      `).join('');
+    }
+    async function guardar() {
+      const nombre = document.getElementById('nombre').value;
+      const curso = document.getElementById('curso').value;
+      const email = document.getElementById('email').value;
+      if (!nombre || !curso || !email) {
+        alert('Por favor completa todos los campos');
+        return;
+      }
+      await fetch('/alumnos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre, curso, email })
+      });
+      document.getElementById('nombre').value = '';
+      document.getElementById('curso').value = '';
+      document.getElementById('email').value = '';
+      cargar();
+    }
+    cargar();
+  </script>
+</body>
+</html>
